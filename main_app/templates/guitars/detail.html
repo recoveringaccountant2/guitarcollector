@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>Guitar Details</h1>
+
+<div class="row">
+    <div class="col s6">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">{{ guitar.name }}</span>
+                <p>Brand: {{ guitar.brand }}</p>
+                <p>Description: {{ guitar.description }}</p>
+                {% if guitar.year < 9999 %}
+                    <p>Year Manufactured: {{ guitar.year }}</p>
+                {% else %}
+                    <p>Year Manufactured: Unknown</p>
+                {% endif %}
+            </div>
+            <div class="card-action">
+                <a href="{% url 'guitars_update' guitar.id %}">Edit</a>
+                <a href="{% url 'guitars_delete' guitar.id %}">Delete</a>
+            </div>
+        </div>
+
+        <!-- Insert photo markup below this comment -->
+        {% for photo in guitar.photo_set.all %}
+        <img class="responsive-img card-panel" src="{{photo.url}}">
+        {% empty %}
+        <div class="card-panel teal-text center-align">No Photos Uploaded</div>
+        {% endfor %}
+        
+        <form action="{% url 'add_photo' guitar.id %}" enctype="multipart/form-data" method="POST" class="card-panel">
+            {% csrf_token %}
+            <input type="file" name="photo-file">
+            <br><br>
+            <input type="submit" class="btn" value="Upload Photo">
+        </form>
+
+
+
+
+    </div>
+
+    <div class="col s6">
+        <form action="{% url 'add_restring' guitar.id %}" method="post">
+            {% csrf_token %}
+            {{ restring_form.as_p }}
+            <input type="submit" class="btn" value="Add Restring">
+        </form>
+        <br>
+
+        {% if guitar.restrung_recently %}
+            <div class="card-panel teal-text center-align">{{guitar.name}} is ready to be played</div>
+        {% else %}
+            <div class="card-panel red-text center-align">{{guitar.name}} might be in need of some new strings </div>
+        {% endif %}
+    
+        <table class="striped">
+            <thead>
+              <tr><th>Date</th><th>String</th></tr>
+            </thead>
+            <tbody>
+              {% for restring in guitar.restring_set.all %}
+                <tr>
+                  <td>{{restring.date}}</td>
+                  <td>{{restring.get_string_display}}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+    </div>
+</div>
+
+<hr>
+
+<div class="row">
+  <div class="col s6">
+    <h3>{{ guitar.name }}'s Accessories</h3>
+    {% if guitar.accessories.count %}
+      {% for accessory in guitar.accessories.all %}
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">
+                {{ accessory.name }} - {{ accessory.description }}
+            </span>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <h5>No Accessories :(</h5>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+    const dateEl = document.getElementById('id_date');
+    M.Datepicker.init(dateEl, {
+        format: 'yyyy-mm-dd',
+        defaultDate: new Date(),
+        setDefaultDate: true,
+        autoClose: true
+    });
+
+    // add additional JS to initialize select below
+    const selectEl = document.getElementById('id_string');
+    M.FormSelect.init(selectEl);
+</script>
+
+</div>
+<!-- Available accessories will come after this line -->
+<div class="col s6">
+  <h3>Available Accessories</h3>
+  {% if accessories.count %}
+    {% for accessory in accessories.all %}
+      <div class="card">
+        <div class="card-content">
+          <span class="card-title">
+            {{ accessory.name }} - {{ accessory.description }}
+          </span>
+        </div>
+        <div class="card-action">
+            <form action="{% url 'assoc_accessory' guitar.id accessory.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn">Add</button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <h5>{{accessory.name}} Already Has All Accessories Available</h5>
+  {% endif %}
+</div>
+
+{% endblock %}

@@ -5,16 +5,18 @@
 
 {% for guitar in guitars %}
   <div class="card">
-    <div class="card-content">
-      <span class="card-title">{{ guitar.name }}</span>
-      <p>Brand: {{ guitar.brand }}</p>
-      <p>Description: {{ guitar.description }}</p>
-      {% if guitar.year < 9999 %}
-        <p>Year Manufactured: {{ guitar.year }}</p>
-      {% else %}
-        <p>Year Manufactured: Unknown</p>
-      {% endif %}
-    </div>
+    <a href="{% url 'detail' guitar.id %}">
+      <div class="card-content">
+        <span class="card-title">{{ guitar.name }}</span>
+        <p>Brand: {{ guitar.brand }}</p>
+        <p>Description: {{ guitar.description }}</p>
+        {% if guitar.year == 9999 %}
+          <p>Year Manufactured: {{ guitar.year }}</p>
+        {% else %}
+          <p>Year Manufactured: Unknown</p>
+        {% endif %}
+      </div>
+    </a>
   </div>
 {% endfor %}
 
